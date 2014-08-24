@@ -1,6 +1,9 @@
 package com.fei_ke.AndroidHook;
 
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +46,7 @@ public class HookEntity {
     }
 
     public Object[] getParamType(ClassLoader classLoader) {
-        int length = paramType.size() + 1;
+        int length = (paramType != null ? paramType.size() : 0) + 1;
         Object[] os = new Object[length];
         for (int i = 0; i < length - 1; i++) {
             try {
@@ -72,8 +75,43 @@ public class HookEntity {
         return methodName;
     }
 
+    private String getParamTypeForStore() {
+        StringBuilder builder = new StringBuilder();
+        int size = paramType != null ? paramType.size() : 0;
+        for (int i = 0; i < size; i++) {
+            builder.append(paramType.get(i));
+            if (i != size - 1) {
+                builder.append("|");
+            }
+        }
+        return builder.toString();
+    }
+
+    private void restoreParamType(String parasString) {
+        String[] params = parasString.split("|");
+        paramType = Arrays.asList(params);
+    }
+
     public static HookEntity fromSet(Set<String> set) {
-        //TODO Admin 2014/8/23 反序列化
-        return null;
+        HookEntity entity = new HookEntity();
+        Iterator<String> ite = set.iterator();
+        entity.packageName = ite.next().split(":")[1];
+        entity.className = ite.next().split(":")[1];
+        entity.methodName = ite.next().split(":")[1];
+        entity.restoreParamType(ite.next().split(":")[1]);
+        entity.returnType = Integer.valueOf(ite.next().split(":")[1]);
+        return entity;
+    }
+
+    public String writeToSet() {
+        StringBuilder builder=new StringBuilder();
+        builder.append(packageName);
+        builder.append(",");
+        set.add("a:" + packageName);
+        set.add("b:" + className);
+        set.add("e:" + methodName);
+        set.add("c:" + getParamTypeForStore());
+        set.add("d:" + returnType);
+        return set;
     }
 }
