@@ -1,4 +1,4 @@
-package com.fei_ke.AndroidHook;
+package com.fei_ke.AndroidHook.constant;
 
 public class Constant {
     public static final String THIS_PACKAGE_NAME = "com.fei_ke.AndroidHook";
