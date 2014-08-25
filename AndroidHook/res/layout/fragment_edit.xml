@@ -56,7 +56,7 @@
 			<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="method name"/>
+				android:text="method/field name"/>
 
 			<AutoCompleteTextView
 				android:id="@+id/editMethodName"
@@ -76,7 +76,7 @@
 			<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="return Type"/>
+				android:text="return/field Type"/>
 
 			<Spinner
 				android:id="@+id/spinnerReturnType"

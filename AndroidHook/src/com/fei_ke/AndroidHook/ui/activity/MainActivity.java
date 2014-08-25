@@ -5,15 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.fei_ke.AndroidHook.R;
@@ -57,10 +54,8 @@ public class MainActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final HookEntity hookEntity = entities.get(position);
                 final EditText editText = new EditText(MainActivity.this);
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.gravity = Gravity.BOTTOM;
                 editText.setText(preResult.getString(hookEntity.getStoreKey(), ""));
+                editText.setSelection(editText.length());
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("set return")

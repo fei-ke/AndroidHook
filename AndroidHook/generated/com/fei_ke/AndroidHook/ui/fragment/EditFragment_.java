@@ -67,12 +67,12 @@ public final class EditFragment_
 
     @Override
     public void onViewChanged(HasViews hasViews) {
-        editParaType = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editParaType));
         spinnerReturnType = ((Spinner) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.spinnerReturnType));
-        editClassName = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editClassName));
+        editParaType = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editParaType));
         editPackageName = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editPackageName));
         spinnerHookType = ((Spinner) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.spinnerHookType));
         editMethodName = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editMethodName));
+        editClassName = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editClassName));
         editAliasName = ((EditText) hasViews.findViewById(com.fei_ke.AndroidHook.R.id.editAliasName));
         onPrivateAfterViews();
     }

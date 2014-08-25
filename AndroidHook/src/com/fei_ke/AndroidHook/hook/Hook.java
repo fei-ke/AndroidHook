@@ -27,10 +27,14 @@ public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         entitiesFW = new ArrayList<HookEntity>();
         entitiesUser = new ArrayList<HookEntity>();
         for (HookEntity he : list) {
-            if (he.getHookType() == HookEntity.HOOK_TYPE_FW) {
-                entitiesFW.add(he);
-            } else if (he.getHookType() == HookEntity.HOOK_TYPE_USER) {
-                entitiesUser.add(he);
+            switch (he.getHookType()) {
+                case HookEntity.HOOK_TYPE_FW:
+                    entitiesFW.add(he);
+                    break;
+                case HookEntity.HOOK_TYPE_USER:
+                case HookEntity.HOOK_TYPE_USER_FIELD:
+                    entitiesUser.add(he);
+                    break;
             }
         }
 
@@ -42,12 +46,27 @@ public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         for (int i = entitiesUser.size() - 1; i >= 0; i--) {
             HookEntity he = entitiesUser.get(i);
             if (lpparam.packageName.equals(he.getPackageName())) {
-                hookMethod(he, lpparam.classLoader);
-                entitiesUser.remove(i);
+                if (he.getHookType() == HookEntity.HOOK_TYPE_USER) {
+                    hookMethod(he, lpparam.classLoader);
+                } else if (he.getHookType() == HookEntity.HOOK_TYPE_USER_FIELD) {
+                    hookField(he, lpparam.classLoader);
+                }
+
             }
         }
 
 
+    }
+
+    private void hookField(HookEntity he, ClassLoader classLoader) {
+        try {
+            XposedHelpers.setStaticObjectField(
+                    XposedHelpers.findClass(he.getClassName(), classLoader),
+                    he.getMethodName(),
+                    getResult(he));
+        } catch (Throwable t) {
+            XposedBridge.log(t);
+        }
     }
 
 
@@ -66,21 +85,7 @@ public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     prefReturnResult.reload();
                     if (!prefReturnResult.contains(he.getStoreKey())) return;
-                    Object returnResult = null;
-                    switch (he.getReturnType()) {
-                        case HookEntity.RETURN_TYPE_INT:
-                            returnResult = Integer.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
-                            break;
-                        case HookEntity.RETURN_TYPE_FLOAT:
-                            returnResult = Float.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
-                            break;
-                        case HookEntity.RETURN_TYPE_BOOLEAN:
-                            returnResult = Boolean.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
-                            break;
-                        case HookEntity.RETURN_TYPE_STRING:
-                            returnResult = prefReturnResult.getString(he.getStoreKey(), null);
-                            break;
-                    }
+                    Object returnResult = getResult(he);
 
                     if (returnResult != null) {
                         param.setResult(returnResult);
@@ -99,5 +104,24 @@ public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         } catch (Throwable t) {
             XposedBridge.log(t);
         }
+    }
+
+    private Object getResult(HookEntity he) {
+        Object returnResult = null;
+        switch (he.getReturnType()) {
+            case HookEntity.RETURN_TYPE_INT:
+                returnResult = Integer.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
+                break;
+            case HookEntity.RETURN_TYPE_FLOAT:
+                returnResult = Float.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
+                break;
+            case HookEntity.RETURN_TYPE_BOOLEAN:
+                returnResult = Boolean.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
+                break;
+            case HookEntity.RETURN_TYPE_STRING:
+                returnResult = prefReturnResult.getString(he.getStoreKey(), null);
+                break;
+        }
+        return returnResult;
     }
 }

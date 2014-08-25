@@ -34,7 +34,7 @@ public class EditFragment extends BaseFragment {
 
 
     private static final String[] hookTypes = new String[]{
-            "fw", "user"
+            "fw", "user", "user field"
     };
     private static final String[] returnTypes = new String[]{
             "void",
@@ -91,8 +91,8 @@ public class EditFragment extends BaseFragment {
         hookEntity.setClassName(editClassName.getText().toString().trim());
         hookEntity.setMethodName(editMethodName.getText().toString().trim());
         hookEntity.setParamType(editParaType.getText().toString().trim());
-        int returnType = spinnerReturnType.getSelectedItemPosition();
-        hookEntity.setReturnType(returnType);
+        hookEntity.setReturnType(spinnerReturnType.getSelectedItemPosition());
+        hookEntity.setHookType(spinnerHookType.getSelectedItemPosition());
 
         if (!TextUtils.isEmpty(hookEntity.getClassName()) && !TextUtils.isEmpty(hookEntity.getMethodName())) {
             PreferenceUtil.putFWHookEntity(hookEntity, spinnerHookType.getSelectedItemPosition());

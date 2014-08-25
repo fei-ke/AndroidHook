@@ -17,6 +17,7 @@ public class HookEntity implements Serializable {
 
     public static final int HOOK_TYPE_FW = 0;
     public static final int HOOK_TYPE_USER = 1;
+    public static final int HOOK_TYPE_USER_FIELD= 2;
 
     private String packageName;
     private String className;
