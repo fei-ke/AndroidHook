@@ -1,13 +1,13 @@
 package com.fei_ke.AndroidHook.ui.fragment;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.fei_ke.AndroidHook.R;
-import com.fei_ke.AndroidHook.constant.Constant;
 import com.fei_ke.AndroidHook.entity.HookEntity;
+import com.fei_ke.AndroidHook.utils.PreferenceUtil;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -21,15 +21,28 @@ public class EditFragment extends BaseFragment {
             editPackageName,
             editClassName,
             editMethodName,
-            editParaType,
-            editReturnType;
+            editParaType;
+
+    @ViewById
+    protected Spinner
+            spinnerReturnType,
+            spinnerHookType;
 
 
     @FragmentArg
     protected HookEntity hookEntity;
 
-    protected SharedPreferences preHookable;
 
+    private static final String[] hookTypes = new String[]{
+            "fw", "user"
+    };
+    private static final String[] returnTypes = new String[]{
+            "void",
+            "int",
+            "String",
+            "float",
+            "boolean",
+    };
 
     public static EditFragment getInstance(HookEntity hookEntity) {
         return EditFragment_.builder().hookEntity(hookEntity).build();
@@ -37,7 +50,14 @@ public class EditFragment extends BaseFragment {
 
     @Override
     protected void onAfterViews() {
-        preHookable = getActivity().getSharedPreferences(Constant.PREF_HOOKABLE_FW, Context.MODE_WORLD_READABLE);
+
+        ArrayAdapter<String> adapterReturnType = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_1, returnTypes);
+        spinnerReturnType.setAdapter(adapterReturnType);
+
+        ArrayAdapter<String> adapterHookType = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_1, hookTypes);
+        spinnerHookType.setAdapter(adapterHookType);
 
         initValue();
     }
@@ -49,7 +69,9 @@ public class EditFragment extends BaseFragment {
             editClassName.setText(hookEntity.getClassName());
             editMethodName.setText(hookEntity.getMethodName());
             editParaType.setText(hookEntity.getParamType());
-            editReturnType.setText(hookEntity.getReturnType() + "");
+            spinnerReturnType.setSelection(hookEntity.getReturnType());
+            spinnerHookType.setSelection(hookEntity.getHookType());
+            //editReturnType.setText(hookEntity.getReturnType());
         } else {
             hookEntity = new HookEntity();
         }
@@ -69,11 +91,11 @@ public class EditFragment extends BaseFragment {
         hookEntity.setClassName(editClassName.getText().toString().trim());
         hookEntity.setMethodName(editMethodName.getText().toString().trim());
         hookEntity.setParamType(editParaType.getText().toString().trim());
-        String returnType = editReturnType.getText().toString().trim();
-        hookEntity.setReturnType(TextUtils.isEmpty(returnType) ? 0 : Integer.valueOf(returnType));
+        int returnType = spinnerReturnType.getSelectedItemPosition();
+        hookEntity.setReturnType(returnType);
 
         if (!TextUtils.isEmpty(hookEntity.getClassName()) && !TextUtils.isEmpty(hookEntity.getMethodName())) {
-            preHookable.edit().putString(hookEntity.getStoreKey(), hookEntity.getStoreString()).commit();
+            PreferenceUtil.putFWHookEntity(hookEntity, spinnerHookType.getSelectedItemPosition());
         }
     }
 

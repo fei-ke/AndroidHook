@@ -15,12 +15,16 @@ public class HookEntity implements Serializable {
     public static final int RETURN_TYPE_FLOAT = 3;
     public static final int RETURN_TYPE_BOOLEAN = 4;
 
+    public static final int HOOK_TYPE_FW = 0;
+    public static final int HOOK_TYPE_USER = 1;
+
     private String packageName;
     private String className;
     private String methodName;
     private String paramType = "";
     private int returnType;
     private String alias;
+    private int hookType;
 
     public String getPackageName() {
         return packageName;
@@ -70,6 +74,13 @@ public class HookEntity implements Serializable {
         this.paramType = paramType;
     }
 
+    public int getHookType() {
+        return hookType;
+    }
+
+    public void setHookType(int hookType) {
+        this.hookType = hookType;
+    }
 
     public void setReturnType(int returnType) {
         this.returnType = returnType;
@@ -87,7 +98,7 @@ public class HookEntity implements Serializable {
         return paramType;
     }
 
-    public static HookEntity fromSet(String set) {
+    public static HookEntity fromString(String set) {
         String[] strArr = set.split("\\|");
         System.out.println(Arrays.toString(strArr));
         HookEntity entity = new HookEntity();
@@ -97,6 +108,7 @@ public class HookEntity implements Serializable {
         entity.paramType = strArr[3];
         entity.returnType = Integer.valueOf(strArr[4]);
         entity.alias = strArr[5];
+        entity.hookType = Integer.valueOf(strArr[6]);
         return entity;
     }
 
@@ -106,7 +118,8 @@ public class HookEntity implements Serializable {
                 + methodName + "|"
                 + paramType + "|"
                 + returnType + "|"
-                + alias;
+                + alias + "|"
+                + hookType;
     }
 
     public String getAlias() {

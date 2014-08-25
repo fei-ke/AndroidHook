@@ -23,10 +23,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (rootview != null) {
-            System.out.println(this.toString() + "mView 有缓存");
             return rootview;
-        } else {
-            System.out.println(this.toString() + "mView 无缓存");
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }

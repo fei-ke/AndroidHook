@@ -14,7 +14,7 @@ public class HookEntityUtil {
         Map<String, ?> all = preferences.getAll();
         for (String key : all.keySet()) {
             String set = preferences.getString(key, null);
-            HookEntity he = HookEntity.fromSet(set);
+            HookEntity he = HookEntity.fromString(set);
             entities.add(he);
         }
         return entities;

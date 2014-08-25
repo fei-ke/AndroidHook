@@ -4,18 +4,23 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.fei_ke.AndroidHook.R;
 import com.fei_ke.AndroidHook.constant.Constant;
 import com.fei_ke.AndroidHook.entity.HookEntity;
 import com.fei_ke.AndroidHook.utils.HookEntityUtil;
+import com.fei_ke.AndroidHook.utils.PreferenceUtil;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -28,13 +33,11 @@ public class MainActivity extends BaseActivity {
     @ViewById
     protected ListView listView;
     protected ArrayAdapter<HookEntity> mAdapter;
-    private SharedPreferences preHookableFW;
     private SharedPreferences preResult;
     private List<HookEntity> entities;
 
     @Override
     protected void onAfterViews() {
-        preHookableFW = getSharedPreferences(Constant.PREF_HOOKABLE_FW, MODE_WORLD_READABLE);
         preResult = getSharedPreferences(Constant.PREF_RETURN_RESULT, Context.MODE_WORLD_READABLE);
 
         entities = new ArrayList<HookEntity>();
@@ -54,6 +57,9 @@ public class MainActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final HookEntity hookEntity = entities.get(position);
                 final EditText editText = new EditText(MainActivity.this);
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.gravity = Gravity.BOTTOM;
                 editText.setText(preResult.getString(hookEntity.getStoreKey(), ""));
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
@@ -62,14 +68,32 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String returnResult = editText.getText().toString();
-                                preResult.edit().putString(hookEntity.getStoreKey(), returnResult).commit();
+                                saveResult(returnResult, hookEntity);
                             }
                         })
+                        .setNegativeButton("cancel", null)
+                        .setNeutralButton("save", null)
                         .setView(editText)
                         .create();
                 alertDialog.show();
+
+                alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String returnResult = editText.getText().toString();
+                        saveResult(returnResult, hookEntity);
+                    }
+                });
             }
         });
+    }
+
+    private void saveResult(String returnResult, HookEntity hookEntity) {
+        if (TextUtils.isEmpty(returnResult)) {
+            preResult.edit().remove(hookEntity.getStoreKey()).commit();
+        } else {
+            preResult.edit().putString(hookEntity.getStoreKey(), returnResult).commit();
+        }
     }
 
     @Override
@@ -80,8 +104,8 @@ public class MainActivity extends BaseActivity {
 
     private void reLoad() {
         entities.clear();
-        List<HookEntity> list = HookEntityUtil.getAllHookEntity(preHookableFW);
-        entities.addAll(list);
+        List<HookEntity> listFw = HookEntityUtil.getAllHookEntity(PreferenceUtil.preHookable);
+        entities.addAll(listFw);
         mAdapter.notifyDataSetChanged();
     }
 

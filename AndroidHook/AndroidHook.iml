@@ -3,6 +3,9 @@
   <component name="FacetManager">
     <facet type="android" name="Android">
       <configuration>
+        <proGuardCfgFiles>
+          <file>file://C:/Program Files/Java/jdk1.7.0_15/tools/proguard/proguard-android.txt</file>
+        </proGuardCfgFiles>
         <option name="UPDATE_PROPERTY_FILES" value="true" />
       </configuration>
     </facet>
@@ -13,8 +16,9 @@
       <sourceFolder url="file://$MODULE_DIR$/.apt_generated" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/generated" isTestSource="false" generated="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="XposedBridgeApi-54">

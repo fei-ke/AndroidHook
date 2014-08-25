@@ -5,6 +5,7 @@ import com.fei_ke.AndroidHook.constant.Constant;
 import com.fei_ke.AndroidHook.entity.HookEntity;
 import com.fei_ke.AndroidHook.utils.HookEntityUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -16,21 +17,43 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-    XSharedPreferences preHookableFW = new XSharedPreferences(Constant.THIS_PACKAGE_NAME, Constant.PREF_HOOKABLE_FW);
-    XSharedPreferences preHookableUser = new XSharedPreferences(Constant.THIS_PACKAGE_NAME, Constant.PREF_HOOKABLE_USER);
-    XSharedPreferences prefReturnResult = new XSharedPreferences(Constant.THIS_PACKAGE_NAME, Constant.PREF_RETURN_RESULT);
+    private XSharedPreferences prefReturnResult = new XSharedPreferences(Constant.THIS_PACKAGE_NAME, Constant.PREF_RETURN_RESULT);
+    private static List<HookEntity> entitiesUser;
+    private static List<HookEntity> entitiesFW;
 
-    @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        //        if (preHookableUser.contains(lpparam.packageName)) {
-        //
-        //        }
+    static {
+        XSharedPreferences preHookableUser = new XSharedPreferences(Constant.THIS_PACKAGE_NAME, Constant.PREF_HOOKABLE);
+        List<HookEntity> list = HookEntityUtil.getAllHookEntity(preHookableUser);
+        entitiesFW = new ArrayList<HookEntity>();
+        entitiesUser = new ArrayList<HookEntity>();
+        for (HookEntity he : list) {
+            if (he.getHookType() == HookEntity.HOOK_TYPE_FW) {
+                entitiesFW.add(he);
+            } else if (he.getHookType() == HookEntity.HOOK_TYPE_USER) {
+                entitiesUser.add(he);
+            }
+        }
+
+
     }
 
     @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        for (int i = entitiesUser.size() - 1; i >= 0; i--) {
+            HookEntity he = entitiesUser.get(i);
+            if (lpparam.packageName.equals(he.getPackageName())) {
+                hookMethod(he, lpparam.classLoader);
+                entitiesUser.remove(i);
+            }
+        }
+
+
+    }
+
+
+    @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-        List<HookEntity> entities = HookEntityUtil.getAllHookEntity(preHookableFW);
-        for (HookEntity entity : entities) {
+        for (HookEntity entity : entitiesFW) {
             hookMethod(entity, null);
         }
     }
@@ -42,16 +65,17 @@ public class Hook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     prefReturnResult.reload();
+                    if (!prefReturnResult.contains(he.getStoreKey())) return;
                     Object returnResult = null;
                     switch (he.getReturnType()) {
                         case HookEntity.RETURN_TYPE_INT:
-                            returnResult = prefReturnResult.getInt(he.getStoreKey(), 0);
+                            returnResult = Integer.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
                             break;
                         case HookEntity.RETURN_TYPE_FLOAT:
-                            returnResult = prefReturnResult.getFloat(he.getStoreKey(), 0);
+                            returnResult = Float.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
                             break;
                         case HookEntity.RETURN_TYPE_BOOLEAN:
-                            returnResult = prefReturnResult.getBoolean(he.getStoreKey(), false);
+                            returnResult = Boolean.valueOf(prefReturnResult.getString(he.getStoreKey(), null));
                             break;
                         case HookEntity.RETURN_TYPE_STRING:
                             returnResult = prefReturnResult.getString(he.getStoreKey(), null);
