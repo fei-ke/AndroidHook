@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 
 import com.fei_ke.AndroidHook.R;
 import com.fei_ke.AndroidHook.constant.Constant;
@@ -41,10 +42,28 @@ public class MainActivity extends BaseActivity {
         mAdapter = new ArrayAdapter<HookEntity>(this, android.R.layout.simple_list_item_1, entities);
         listView.setAdapter(mAdapter);
 
+
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(EditActivity.getStartIntent(MainActivity.this, entities.get(position)));
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, view);
+                popupMenu.inflate(R.menu.list_edit);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_edit:
+                                startActivity(EditActivity.getStartIntent(MainActivity.this, entities.get(position)));
+                                break;
+                            case R.id.action_remove:
+                                PreferenceUtil.removeEntity(entities.get(position));
+                                reLoad();
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
                 return true;
             }
         });

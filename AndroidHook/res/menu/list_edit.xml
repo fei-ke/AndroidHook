@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:title="edit"
+		android:id="@+id/action_edit"
+		android:orderInCategory="100"
+		/>
+	<item
+		android:title="remove"
+		android:id="@+id/action_remove"
+		android:orderInCategory="100"
+		/>
+</menu>

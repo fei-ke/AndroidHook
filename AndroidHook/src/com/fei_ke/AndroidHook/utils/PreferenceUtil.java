@@ -21,4 +21,9 @@ public class PreferenceUtil {
         preHookable.edit().putString(entity.getStoreKey(), entity.getStoreString()).commit();
     }
 
+    public static void removeEntity(HookEntity entity) {
+        String storeKey = entity.getStoreKey();
+        preHookable.edit().remove(storeKey).commit();
+        preResult.edit().remove(storeKey).commit();
+    }
 }
